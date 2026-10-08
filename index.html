@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Ad to Unlock</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <style>
+    body {
+      background-color: #0e1621;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    .card {
+      background: #17212b;
+      padding: 24px;
+      border-radius: 14px;
+      max-width: 320px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    h2 { margin: 0 0 10px; font-size: 20px; color: #5288c1; }
+    p { font-size: 14px; color: #7f91a4; margin-bottom: 20px; line-height: 1.4; }
+    .btn {
+      background: #2b5278;
+      border: none;
+      color: white;
+      padding: 14px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🍿 Movie Download Gate</h2>
+    <p>Watch a short 15–30s sponsor video to verify and receive your download directly in chat.</p>
+    <button class="btn" id="adBtn" onclick="watchAd()">▶️ Watch Video (30s)</button>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // 1. Read file_id and bot username passed in URL params (?file=...&bot=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const fileId = urlParams.get('file') || '';
+    const botName = urlParams.get('bot') || '';
+
+    // 2. Put your Adsgram Block ID here:
+    const BLOCK_ID = "YOUR_BLOCK_ID";
+
+    const AdController = window.Adsgram.init({ blockId: BLOCK_ID });
+
+    function watchAd() {
+      const btn = document.getElementById('adBtn');
+      btn.innerText = "Loading ad...";
+      btn.disabled = true;
+
+      AdController.show().then((result) => {
+        // Video finished successfully: Redirect back to the bot with reward parameter
+        btn.innerText = "✅ Unlocked! Returning...";
+        setTimeout(() => {
+          if (botName) {
+            window.location.href = `https://t.me/${botName}?start=dl_${fileId}`;
+          } else {
+            tg.close();
+          }
+        }, 1000);
+      }).catch((result) => {
+        alert("Ad was closed early or failed to load. Please try again.");
+        btn.innerText = "▶️ Watch Video (30s)";
+        btn.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
